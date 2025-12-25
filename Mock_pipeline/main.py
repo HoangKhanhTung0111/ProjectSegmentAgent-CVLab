@@ -5,6 +5,8 @@ import numpy as np
 
 # Import các module đã viết
 from modules.inpainting.strategies import TraditionalInpainting
+# Import thêm class Deep Learning mới viết
+from modules.inpainting.deep_strategies import DeepInpaintingStrategy
 from modules.segmentation.mock_model import ColorBasedSegmentation
 
 # --- HƯỚNG DẪN TÍCH HỢP SAU NÀY ---
@@ -33,7 +35,7 @@ def main():
     # =================================================================
     # BƯỚC 1: SEGMENTATION (Tạo Mask)
     # =================================================================
-    # Hiện tại: Dùng Mock Model (Tìm màu đỏ)
+    # Hiện tại: Dùng Mock Model (Tìm màu đỏ) - Bạn có thể đổi 'red', 'green' tùy ảnh
     seg_model = ColorBasedSegmentation(color_range='yellow') 
     
     # [TODO]: SAU NÀY SỬA DÒNG TRÊN THÀNH:
@@ -48,18 +50,48 @@ def main():
     # =================================================================
     # BƯỚC 2: INPAINTING (Phần của bạn)
     # =================================================================
-    # Khởi tạo chiến thuật Inpainting (Case 1: Traditional)
-    inpainter = TraditionalInpainting(method='ns', radius=3)
+    
+    # --- CẤU HÌNH LỰA CHỌN THUẬT TOÁN ---
+    # use_ai = False  -> Chạy Success Case 1 (Cổ điển - OpenCV)
+    # use_ai = True   -> Chạy Success Case 2 (Deep Learning - LaMa)
+    use_ai = True 
+
+    if use_ai:
+        print(">>> Đang khởi tạo AI Model (Case 2: LaMa)...")
+        # Đảm bảo bạn đã tải file big-lama.pt vào thư mục weights/
+        try:
+            inpainter = DeepInpaintingStrategy(model_path="weights/big-lama.pt")
+        except Exception as e:
+            print(f"Lỗi khởi tạo AI: {e}")
+            print("Đang chuyển về thuật toán Cổ điển...")
+            inpainter = TraditionalInpainting(method='ns', radius=3)
+    else:
+        print(">>> Đang sử dụng thuật toán Cổ điển (Case 1: Navier-Stokes)...")
+        inpainter = TraditionalInpainting(method='ns', radius=3)
     
     print("Đang chạy Inpainting...")
-    result_image = inpainter.process(original_image, mask)
+    try:
+        result_image = inpainter.process(original_image, mask)
+    except Exception as e:
+        print(f"Lỗi quá trình xử lý: {e}")
+        return
 
     # =================================================================
     # BƯỚC 3: HIỂN THỊ KẾT QUẢ
     # =================================================================
     # Nối ảnh lại để so sánh: Gốc | Mask | Kết quả
     mask_bgr = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR) # Đổi sang 3 kênh để nối
+    
+    # Resize để đảm bảo ghép được (phòng trường hợp size lệch 1-2 pixel)
+    h, w = original_image.shape[:2]
+    mask_bgr = cv2.resize(mask_bgr, (w, h))
+    result_image = cv2.resize(result_image, (w, h))
+    
     combined_result = cv2.hconcat([original_image, mask_bgr, result_image])
+
+    # Thêm text để biết đang dùng model nào
+    label = "AI (LaMa)" if use_ai else "Classic (NS)"
+    cv2.putText(combined_result, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
     cv2.imshow("Project 2 Demo: Original | Mask | Removed", combined_result)
     print("Nhấn phím bất kỳ để thoát...")
