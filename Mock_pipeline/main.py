@@ -16,7 +16,7 @@ from modules.segmentation.mock_model import ColorBasedSegmentation
 
 def main():
     # 1. Cấu hình đường dẫn ảnh
-    image_path = "inputs/test_image.jpg" # Hãy đảm bảo bạn có ảnh này
+    image_path = "inputs/test_image2.jpg" # Hãy đảm bảo bạn có ảnh này
     
     # Kiểm tra file tồn tại
     if not os.path.exists(image_path):
@@ -34,7 +34,7 @@ def main():
     # BƯỚC 1: SEGMENTATION (Tạo Mask)
     # =================================================================
     # Hiện tại: Dùng Mock Model (Tìm màu đỏ)
-    seg_model = ColorBasedSegmentation(color_range='red') 
+    seg_model = ColorBasedSegmentation(color_range='yellow') 
     
     # [TODO]: SAU NÀY SỬA DÒNG TRÊN THÀNH:
     # seg_model = TeamateSegmentationModel(weights="path/to/weights")
