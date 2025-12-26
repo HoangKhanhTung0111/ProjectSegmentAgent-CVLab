@@ -53,10 +53,20 @@ def main():
     
     # Lấy mask đã vẽ
     mask = seg_app.global_mask.copy()
-
+    
     # Đóng cửa sổ Intelligent Scissors
     cv2.destroyAllWindows()
     
+    # --- LƯU MASK (OUTPUT 1) ---
+    mask_output_path = os.path.join(output_dir, "01_segmentation_mask.png")
+    cv2.imwrite(mask_output_path, mask)
+    print(f"💾 Đã lưu Mask: {mask_output_path}")
+    
+    # Hiển thị Mask để kiểm tra (Debug)
+    cv2.imshow("Debug: Generated Mask", mask)
+    print("→ Nhấn phím bất kỳ để tiếp tục sang bước Inpainting...")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     # =================================================================
     # BƯỚC 2: INPAINTING (Phần của bạn)
