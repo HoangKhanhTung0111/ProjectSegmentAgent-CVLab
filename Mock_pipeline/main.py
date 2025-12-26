@@ -20,7 +20,7 @@ from modules.segmentation.intelligent_scissors import IntelligentScissorsApp
 
 def main():
     # 1. Cấu hình đường dẫn ảnh
-    image_path = "inputs/test_image2.jpg" # Hãy đảm bảo bạn có ảnh này
+    image_path = "inputs/test_image1.jpg" # Hãy đảm bảo bạn có ảnh này
     
     # Tạo thư mục outputs nếu chưa có
     output_dir = "outputs"
@@ -115,7 +115,7 @@ def main():
     # --- CẤU HÌNH LỰA CHỌN THUẬT TOÁN ---
     # use_ai = False  -> Chạy Success Case 1 (Cổ điển - OpenCV)
     # use_ai = True   -> Chạy Success Case 2 (Deep Learning - LaMa)
-    use_ai = True 
+    use_ai = False
 
     if use_ai:
         print(">>> Đang khởi tạo AI Model (Case 2: LaMa)...")
@@ -160,17 +160,29 @@ def main():
     result_image = cv2.resize(result_image, (w, h))
     
     combined_result = cv2.hconcat([original_image, mask_bgr, result_image])
-
-    # Thêm text để biết đang dùng model nào
+    
+    # Thêm text label...
     label = "AI (LaMa)" if use_ai else "Classic (NS)"
     cv2.putText(combined_result, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
-    # --- LƯU ẢNH SO SÁNH (OUTPUT 3) ---
+    # --- LƯU ẢNH ---
     comparison_output_path = os.path.join(output_dir, "03_comparison.png")
     cv2.imwrite(comparison_output_path, combined_result)
     print(f"💾 Đã lưu ảnh so sánh: {comparison_output_path}")
 
-    cv2.imshow("Project 2 Demo: Original | Mask | Removed", combined_result)
+    # --- HIỂN THỊ (SỬ DỤNG CÁCH CỦA BẠN) ---
+    window_name = "Project 2 Demo: Original | Mask | Removed" # Đặt tên biến để tránh gõ sai
+    
+    # 1. Tạo cửa sổ ở chế độ NORMAL (cho phép resize)
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL) 
+    
+    # 2. Thiết lập kích thước cửa sổ hiển thị (Ví dụ: 1200x600)
+    # Lưu ý: Nên set tỷ lệ tương đương ảnh gốc để không bị méo hình
+    cv2.resizeWindow(window_name, 1200, 600) 
+
+    # 3. Hiển thị ảnh vào cửa sổ đó
+    cv2.imshow(window_name, combined_result)
+
     print("Nhấn phím bất kỳ để thoát...")
     cv2.waitKey(0)
     cv2.destroyAllWindows()
