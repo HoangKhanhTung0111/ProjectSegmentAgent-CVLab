@@ -216,3 +216,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.streamlit/secrets.tomlMock_pipeline/weights/groundingdino_swinb_cogcoor.pth
+Mock_pipeline/weights/groundingdino_swinb_cogcoor.pth
